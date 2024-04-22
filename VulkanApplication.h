@@ -9,6 +9,13 @@
 #include <optional>
 #include <string>
 
+struct UniformBufferObject
+{
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
+
 struct Vertex
 {
 	glm::vec2 pos;
@@ -75,75 +82,40 @@ class VulkanApplication
 
   private:
 	void initWindow();
-
 	static void frameBufferResizeCallback(GLFWwindow *window, [[maybe_unused]] int width, [[maybe_unused]] int height);
-
 	void initVulkan();
-
 	void pickPhysisicalDevice();
-
 	void createInstance();
-
 	void createLogicalDevice();
-
 	void createSurface();
-
 	void mainLoop();
-
 	void cleanup() const;
-
 	void cleanupSwapChain() const;
-
 	static std::vector<const char *> getRequiredExtensions();
-
 	[[nodiscard]] bool isDeviceSuitable(const VkPhysicalDevice &device) const;
-
 	[[nodiscard]] QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device) const;
-
 	static bool checkValidationLayerSupport();
-
 	static bool checkDeviceExtensionSupport(const VkPhysicalDevice &device);
-
 	[[nodiscard]] SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice &device) const;
-
 	static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &avaiableFormats);
-
 	static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &avaiablePresentModes);
-
 	[[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
-
 	void createSwapChain();
-
 	void createImageViews();
-
 	void createGraphicsPipeline();
-
 	[[nodiscard]] VkShaderModule createShaderModule(const std::vector<char> &code) const;
-
 	void createRenderPass();
-
 	void createFramebuffers();
-
 	void createCommandPool();
-
 	void createCommandBuffers();
-
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) const;
-
 	void createSyncObjects();
-
 	void drawFrame();
-
 	void recreateSwapChain();
-
 	void createVertexBuffer();
-
 	void createIndexBuffer();
-
 	[[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
-
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	int width;
@@ -181,6 +153,5 @@ class VulkanApplication
 	VkBuffer indexBuffer{};
 	VkDeviceMemory indexBufferMemory{};
 };
-
 
 #endif // VULKANAPPLICATION_H
