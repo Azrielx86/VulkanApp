@@ -1,8 +1,11 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #ifndef VULKANAPPLICATION_H
 #define VULKANAPPLICATION_H
 
 #include "Global.h"
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <array>
 #include <boost/format.hpp>
 #include <chrono>
@@ -20,7 +23,7 @@ struct UniformBufferObject
 
 struct Vertex
 {
-	glm::vec2 pos;
+	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
@@ -38,7 +41,7 @@ struct Vertex
 		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
 		attributeDescriptions[1].binding = 0;
@@ -55,13 +58,23 @@ struct Vertex
 };
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}};
+    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+
+    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}
+
+};
 
 const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0};
+    0, 1, 2, 2, 3, 0,
+    4, 5, 6, 6, 7, 4
+
+};
 
 struct QueueFamilyIndices
 {
@@ -92,7 +105,7 @@ class VulkanApplication
 	void initWindow();
 	static void frameBufferResizeCallback(GLFWwindow *window, [[maybe_unused]] int width, [[maybe_unused]] int height);
 	void initVulkan();
-	void pickPhysisicalDevice();
+	void pickPhysicalDevice();
 	void createInstance();
 	void createLogicalDevice();
 	void createSurface();
@@ -131,8 +144,12 @@ class VulkanApplication
 	void createDescriptorSetLayout();
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
 	void createTextureImageView();
-	VkImageView createImageView(VkImage image, VkFormat format);
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags flags);
 	void createTextureSampler();
+	void createDepthResources();
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	VkFormat findDepthFormat();
+	bool hasStencilComponent(VkFormat format);
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -181,13 +198,19 @@ class VulkanApplication
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	std::vector<void *> uniformBuffersMapped;
 
-	VkDescriptorPool descriptorPool;
+	VkDescriptorPool descriptorPool{};
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	VkImage textureImage{};
 	VkDeviceMemory textureImageMemory{};
 	VkImageView textureImageView{};
 	VkSampler textureSampler{};
+
+	VkImage depthImage{};
+	VkDeviceMemory depthImageMemory{};
+	VkImageView depthImageView{};
 };
 
 #endif // VULKANAPPLICATION_H
+
+#pragma clang diagnostic pop
