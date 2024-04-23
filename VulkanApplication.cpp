@@ -81,6 +81,9 @@ void VulkanApplication::initVulkan()
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
+#ifndef SQUARE_EXAMPLE
+	loadModel();
+#endif
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();
@@ -816,7 +819,7 @@ void VulkanApplication::recordCommandBuffer(VkCommandBuffer commandBuffer, uint3
 	VkBuffer vertexBuffers[] = {vertexBuffer};
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
@@ -1149,12 +1152,11 @@ void VulkanApplication::createDescriptorSets()
 
 void VulkanApplication::createTextureImage()
 {
-	const char *path = "./assets/textures/texture.jpg";
 	int texWidth, texHeight, texChannels;
-	stbi_uc *pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc *pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 	if (!pixels)
-		throw std::runtime_error((boost::format("Error loading image: %s") % path).str().c_str());
+		throw std::runtime_error((boost::format("Error loading image: %s") % TEXTURE_PATH).str().c_str());
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -1421,4 +1423,39 @@ VkFormat VulkanApplication::findDepthFormat()
 bool VulkanApplication::hasStencilComponent(VkFormat format)
 {
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+}
+
+void VulkanApplication::loadModel()
+{
+	Assimp::Importer importer;
+	const aiScene *scene = importer.ReadFile(MODEL_PATH.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		throw std::runtime_error((boost::format("Cannot load model: %s") % MODEL_PATH).str());
+
+	for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+	{
+		const aiMesh *mesh = scene->mMeshes[i];
+		for (unsigned int j = 0; j < mesh->mNumVertices; ++j)
+		{
+			Vertex vertex{};
+			auto modelVertex = mesh->mVertices[j];
+			vertex.pos = {modelVertex.x, modelVertex.y, modelVertex.z};
+			vertex.color = {1.0f, 1.0f, 1.0f};
+			auto modelTex = mesh->mTextureCoords[0];
+			if (modelTex)
+				vertex.texCoord = {modelTex[j].x, 1.0f - modelTex[j].y};
+			else
+				vertex.texCoord = {0.0f, 0.0f};
+
+			vertices.push_back(vertex);
+		}
+
+		for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
+		{
+			const auto face = mesh->mFaces[j];
+			for (int k = 0; k < face.mNumIndices; ++k)
+				indices.push_back(face.mIndices[k]);
+		}
+	}
 }

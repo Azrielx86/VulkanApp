@@ -1,6 +1,6 @@
 # Vulkan Triangle Draw Example
 
-This is an example of a Vulkan Application in C++, only to draw a single triangle :skull:
+This is an example of a Vulkan Application in C++, based on my previous [Vulkan Triangle Example](https://github.com/Azrielx86/VulkanTriangle)
 
 ## How to execute it
 
@@ -24,4 +24,6 @@ To use it on Windows, you can download the LunarG VulkanSDK from [here](https://
 
 # Result
 
-![](./doc/triangle.png)
+![](./doc/weathley.png)
+
+> Model link [here](https://sketchfab.com/3d-models/wheatley-core-from-portal-2-original-c1bdc8523a8849bd81d6aa901daa409f)

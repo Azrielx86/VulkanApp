@@ -7,12 +7,15 @@ set(GLSL_COMPILER "glslc")
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Boost REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 
 include_directories("/usr/include/stb/")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(__DEBUG__)
 endif ()
+
+#add_compile_definitions(SQUARE_EXAMPLE)
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 message(STATUS "Compiling vertex shader")
@@ -33,6 +36,8 @@ endif ()
 
 message(STATUS "Copying textures")
 file(COPY assets/textures DESTINATION ${CMAKE_BINARY_DIR}/assets)
+message(STATUS "Copying models")
+file(COPY assets/models DESTINATION ${CMAKE_BINARY_DIR}/assets)
 
 add_executable(VulkanApp main.cpp
         VulkanApplication.cpp
@@ -44,3 +49,4 @@ add_executable(VulkanApp main.cpp
 target_link_libraries(VulkanApp Vulkan::Vulkan)
 target_link_libraries(VulkanApp glfw)
 target_link_libraries(VulkanApp Boost::boost)
+target_link_libraries(VulkanApp assimp::assimp)

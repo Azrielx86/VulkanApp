@@ -7,13 +7,16 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 #define GLFW_INCLUDE_VULKAN
+#include <string>
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
 
-struct GLFWDestroyWindow
-{
-	void operator()(GLFWwindow *win) const { glfwDestroyWindow(win); }
-};
+const std::string MODEL_PATH = "./assets/models/weathley.obj";
+#ifndef SQUARE_EXAMPLE
+const std::string TEXTURE_PATH = "./assets/textures/personality_sphere.jpg";
+#else
+const std::string TEXTURE_PATH = "./assets/textures/texture.jpg";
+#endif
 
 #endif // GLOBAL_H
 
