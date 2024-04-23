@@ -1,5 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
-#include "Global.h"
 #include <boost/format.hpp>
 #include "VulkanApplication.h"
 

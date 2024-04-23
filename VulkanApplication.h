@@ -116,12 +116,21 @@ class VulkanApplication
 	void createVertexBuffer();
 	void createIndexBuffer();
 	void createUniformBuffers();
+	void createTextureImage();
 	void createDescriptorPool();
 	void createDescriptorSets();
 	[[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	void createDescriptorSetLayout();
+	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+	void createTextureImageView();
+	VkImageView createImageView(VkImage image, VkFormat format);
+	void createTextureSampler();
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	// Drawing Functions
 	void drawFrame();
 	void updateUniformBuffer(uint32_t currentImage);
@@ -168,6 +177,11 @@ class VulkanApplication
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
+
+	VkImage textureImage{};
+	VkDeviceMemory textureImageMemory{};
+	VkImageView textureImageView{};
+	VkSampler textureSampler{};
 };
 
 #endif // VULKANAPPLICATION_H
