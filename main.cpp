@@ -5,7 +5,7 @@
 
 int main()
 {
-    const auto app = std::make_unique<VulkanApplication>(800, 600, "Hello Vulkan!");
+    const auto app = std::make_unique<VulkanApplication>(1280, 720, "Hello Vulkan!");
 
     try
     {

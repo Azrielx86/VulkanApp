@@ -2,18 +2,20 @@
 #define VULKANAPPLICATION_H
 
 #include "Global.h"
-
+#define GLM_FORCE_RADIANS
 #include <array>
 #include <boost/format.hpp>
+#include <chrono>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <optional>
 #include <string>
 
 struct UniformBufferObject
 {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
 };
 
 struct Vertex
@@ -110,13 +112,19 @@ class VulkanApplication
 	void createCommandBuffers();
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) const;
 	void createSyncObjects();
-	void drawFrame();
 	void recreateSwapChain();
 	void createVertexBuffer();
 	void createIndexBuffer();
+	void createUniformBuffers();
+	void createDescriptorPool();
+	void createDescriptorSets();
 	[[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void createDescriptorSetLayout();
+	// Drawing Functions
+	void drawFrame();
+	void updateUniformBuffer(uint32_t currentImage);
 
 	int width;
 	int height;
@@ -135,6 +143,7 @@ class VulkanApplication
 	VkFormat swapChainImageFormat{};
 	VkExtent2D swapChainExtent{};
 	VkRenderPass renderPass{};
+	VkDescriptorSetLayout descriptorSetLayout{};
 	VkPipelineLayout pipelineLayout{};
 	VkPipeline graphicsPipeline{};
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -152,6 +161,13 @@ class VulkanApplication
 	VkDeviceMemory vertexBufferMemory{};
 	VkBuffer indexBuffer{};
 	VkDeviceMemory indexBufferMemory{};
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<void *> uniformBuffersMapped;
+
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 };
 
 #endif // VULKANAPPLICATION_H
