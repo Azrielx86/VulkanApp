@@ -87,7 +87,7 @@ class VulkanApplication
 
   private:
 	void initWindow();
-	static void frameBufferResizeCallback(GLFWwindow *window, [[maybe_unused]] int width, [[maybe_unused]] int height);
+	static void frameBufferResizeCallback(GLFWwindow *window, [[maybe_unused]] [[maybe_unused]] int width, [[maybe_unused]] int height);
 	void initVulkan();
 	void pickPhysicalDevice();
 	void createInstance();
@@ -126,7 +126,7 @@ class VulkanApplication
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	void createDescriptorSetLayout();
-	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
 	void createTextureImageView();
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags flags, uint32_t mipLevels);
 	void createTextureSampler();
@@ -140,6 +140,8 @@ class VulkanApplication
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	void loadModel();
 	void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+	VkSampleCountFlagBits getMaxUsableSampleCount();
+	void createColorResources();
 	// Drawing Functions
 	void drawFrame();
 	void updateUniformBuffer(uint32_t currentImage);
@@ -196,6 +198,11 @@ class VulkanApplication
 	VkImage depthImage{};
 	VkDeviceMemory depthImageMemory{};
 	VkImageView depthImageView{};
+
+	VkSampleCountFlagBits mssaSamples = VK_SAMPLE_COUNT_1_BIT;
+	VkImage colorImage{};
+	VkDeviceMemory colorImageMemory{};
+	VkImageView colorImageView{};
 
 #ifdef SQUARE_EXAMPLE
 	std::vector<Vertex> vertices = {
